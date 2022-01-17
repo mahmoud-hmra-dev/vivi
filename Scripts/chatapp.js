@@ -1,4 +1,4 @@
-﻿var connection = new WebSocket('ws://localhost:8886');
+﻿var connection = new WebSocket('ws://localhost:8081');
 var Send_dataChannel, connectedUser, Receive_dataChannel;
 var username;
 var chat_window_flag = false;
