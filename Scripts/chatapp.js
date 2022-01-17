@@ -1,8 +1,9 @@
-﻿var connection = new WebSocket('ws://localhost:8886');
+﻿var connection = new WebSocket('ws://vivirrr.vercel.app:8886');
 var Send_dataChannel, connectedUser, Receive_dataChannel;
 var username;
 var chat_window_flag = false;
-var incoming_popup_set = false, outgoing_popup_set = false;
+var incoming_popup_set = false,
+    outgoing_popup_set = false;
 var conn_offer;
 var conn_answer;
 var flag_send_datachannel;
@@ -23,8 +24,7 @@ let current_client_stream;
 let peerConnection;
 
 var configuration = {
-    "iceServers": [
-        {
+    "iceServers": [{
             "urls": "stun:stun.1.google.com:19302"
         },
         {
@@ -33,7 +33,7 @@ var configuration = {
             username: '28224511:1379330808'
         }
     ]
-};  
+};
 /***************************************************************************
  * Visibility of the page ( check the user in the page or not)
  ***************************************************************************/
@@ -54,40 +54,37 @@ if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and 
 function handleVisibilityChange() {
     // If the page is hidden, count message and display
     if (document[hidden]) {
-        if((count_message != 0) && (chat_window_flag == true))
-        {
+        if ((count_message != 0) && (chat_window_flag == true)) {
             var newTitle = '(' + count_message + ') ' + title;
             document.title = newTitle;
-        }
-        else
-        {
-             document.title = title;
+        } else {
+            document.title = title;
         }
     } else {
         // if the page is shown, clear the message count
         count_message = 0;
         document.title = title;
     }
-}  
+}
 
 // Warn if the browser doesn't support addEventListener or the Page Visibility API
 if (typeof document.addEventListener === "undefined" || hidden === undefined) {
     console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
-  } else {
+} else {
     // Handle page visibility change
     document.addEventListener(visibilityChange, handleVisibilityChange, false);
 }
 /*********************************************************************
  * Client - Sever Ping-Pong 
-**********************************************************************/
+ **********************************************************************/
 /**
  * This function will send ping request to server
  */
 function ping() {
     connection.send("clientping");
-    tm = setTimeout(function () {
+    tm = setTimeout(function() {
         console.log("Server is down..")
-        /* Sever down */
+            /* Sever down */
         populate_error("server");
         document.getElementById('loginerror').innerText = "Server is down.. please try again later";
     }, 7000);
@@ -100,11 +97,11 @@ function pong() {
 }
 /*********************************************************************
  * WebSocket functions. Open and Messages
-**********************************************************************/
+ **********************************************************************/
 /**
  * This function will check the websocket connection error.
  */
- connection.onerror = function () {
+connection.onerror = function() {
     console.log("connection.onerror");
     document.getElementById('loginerror').innerText = "Server is down.. please try later";
     populate_error("server");
@@ -113,7 +110,7 @@ function pong() {
  * This function will check the websocket connection open.
  * When connection sucessfull , the user name send to server.
  */
-connection.onopen = function () {
+connection.onopen = function() {
     console.log("connection is fine");
     setInterval(ping, 10000);
 };
@@ -121,7 +118,7 @@ connection.onopen = function () {
  * This function will handle all the messages from server.
  * Main functiion to receive data from server.
  */
-connection.onmessage = function (message) {
+connection.onmessage = function(message) {
     console.log("message from server = ", message.data);
     var data = JSON.parse(message.data);
 
@@ -168,10 +165,10 @@ connection.onmessage = function (message) {
         case "server_exitfrom":
             left_from_server();
             break;
-        
+
         case "server_alreadyinroom":
-            check_user_status(data.success,data.name);
-            break;   
+            check_user_status(data.success, data.name);
+            break;
 
         case "server_error":
             break;
@@ -186,41 +183,41 @@ connection.onmessage = function (message) {
 /*********************************************************************
  *  Functions related to login form
  **********************************************************************/
- const form  = document.getElementById('signup');
- /**
-  * This is a click event when press enter from keybord
-  * accept key event from keyboard
-  * process the send message function
-  */
-   document.addEventListener('keydown', function (key) {
-       //press enter key only allow when the chat window enable
-      if ((key.which === 13) && (chat_window_flag == true)) {
-          SendMessage();
-      }
-  });
- /**
-  * This function will handle the login from UI
-  * If it is success, it will initiate the connection.
-  */
- form.addEventListener('submit', (event) => {
-     // stop form submission
-     event.preventDefault();
-     // handle the form data
-     var username_obj = form.elements['Userame'];
-     username = username_obj.value; 
-     document.getElementById('divChatName_username').innerHTML = username;
-     send({
-         type: "login",
-         name: username
-     });
- });
+const form = document.getElementById('signup');
+/**
+ * This is a click event when press enter from keybord
+ * accept key event from keyboard
+ * process the send message function
+ */
+document.addEventListener('keydown', function(key) {
+    //press enter key only allow when the chat window enable
+    if ((key.which === 13) && (chat_window_flag == true)) {
+        SendMessage();
+    }
+});
+/**
+ * This function will handle the login from UI
+ * If it is success, it will initiate the connection.
+ */
+form.addEventListener('submit', (event) => {
+    // stop form submission
+    event.preventDefault();
+    // handle the form data
+    var username_obj = form.elements['Userame'];
+    username = username_obj.value;
+    document.getElementById('divChatName_username').innerHTML = username;
+    send({
+        type: "login",
+        name: username
+    });
+});
 /********************************************************************************************
  *  WebRTC related Functions (Creation of RTC peer connection, Offer, ICE, SDP, Answer etc..)
  *********************************************************************************************/
 /**
  * This function will handle the data channel open callback.
  */
- var onReceive_ChannelOpenState = function (event) {
+var onReceive_ChannelOpenState = function(event) {
     flag_send_datachannel = false;
     console.log("dataChannel.OnOpen", event);
 
@@ -231,27 +228,27 @@ connection.onmessage = function (message) {
 /**
  * This function will handle the data channel message callback (Peer user side).
  */
-var onReceive_ChannelMessageCallback = function (event) {
-    count_message++;           //Count the messages
+var onReceive_ChannelMessageCallback = function(event) {
+    count_message++; //Count the messages
     handleVisibilityChange(); //if we recive any message and user is in another tab
     UpdateChatMessages(event.data, false);
 };
 /**
  * This function will handle the data channel error callback.
  */
-var onReceive_ChannelErrorState = function (error) {
+var onReceive_ChannelErrorState = function(error) {
     console.log("dataChannel.OnError:", error);
 };
 /**
  * This function will handle the data channel close callback.
  */
-var onReceive_ChannelCloseStateChange = function (event) {
+var onReceive_ChannelCloseStateChange = function(event) {
     /* close event */
 };
 /**
  * Registration of data channel callbacks
  */
-var receiveChannelCallback = function (event) {
+var receiveChannelCallback = function(event) {
     Receive_dataChannel = event.channel;
     Receive_dataChannel.onopen = onReceive_ChannelOpenState;
     Receive_dataChannel.onmessage = onReceive_ChannelMessageCallback;
@@ -271,29 +268,29 @@ function hasRTCPeerConnection() {
 /**
  * This function will check camera permission.
  */
- async function permission_camera_before_call(channel,name) {
+async function permission_camera_before_call(channel, name) {
 
     //get the client and peer video frames Id's
     m_client_Video = document.querySelector('#client_video_frame');
     m_PeerVideo = document.querySelector('#peer_video_frame');
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         console.log('Received local stream');
         m_client_Video.srcObject = stream;
         current_client_stream = stream;
-      } catch (e) {
+    } catch (e) {
         alert(`getUserMedia() error: ${e.name}`);
-      }
-    
-      const videoTracks = current_client_stream.getVideoTracks();
-      const audioTracks = current_client_stream.getAudioTracks();
-      if (videoTracks.length > 0) {
+    }
+
+    const videoTracks = current_client_stream.getVideoTracks();
+    const audioTracks = current_client_stream.getAudioTracks();
+    if (videoTracks.length > 0) {
         console.log(`Using video device: ${videoTracks[0].label}`);
-      }
-      if (audioTracks.length > 0) {
+    }
+    if (audioTracks.length > 0) {
         console.log(`Using audio device: ${audioTracks[0].label}`);
-      }
+    }
 
     peerConnection = new RTCPeerConnection(configuration);
     console.log('Created local peer connection object peerConnection');
@@ -302,63 +299,63 @@ function hasRTCPeerConnection() {
     peerConnection.addEventListener('track', gotRemoteStream);
     console.log('Added local stream to peerConnection');
 
-    if(channel == false){
+    if (channel == false) {
         console.log("Creating Answer..");
         peerConnection.ondatachannel = receiveChannelCallback;
-        creating_answer(); 
+        creating_answer();
     }
 
-    if(channel == true){
-        peerConnection.addEventListener('icecandidate', e => icecandidateAdded(e)); 
+    if (channel == true) {
+        peerConnection.addEventListener('icecandidate', e => icecandidateAdded(e));
         console.log("Creating Offer..");
-        Create_DataChannel(name);  
+        Create_DataChannel(name);
         creating_offer();
     }
 }
 /**
  * This function will handle when when we got ice candidate from another user.
  */
- async function onCandidate(candidate) {
+async function onCandidate(candidate) {
     try {
         await (peerConnection.addIceCandidate(candidate));
         onAddIceCandidateSuccess(peerConnection);
-      } catch (e) {
+    } catch (e) {
         onAddIceCandidateError(peerConnection, e);
-      }    
+    }
 }
 /**
  * This function will print the ICE candidate sucess
- */  
+ */
 function onAddIceCandidateSuccess(pc) {
     console.log(` IceCandidate added successfully..`);
 }
 /**
  * This function will print the ICE candidate error
- */   
+ */
 function onAddIceCandidateError(pc, error) {
     console.log(` Failed to add ICE Candidate: ${error.toString()}`);
 }
 /**
  * This function will set the peer remote streams
- */ 
+ */
 function gotRemoteStream(e) {
     if (m_PeerVideo.srcObject !== e.streams[0]) {
         m_PeerVideo.srcObject = e.streams[0];
-      console.log('received remote stream..');
+        console.log('received remote stream..');
     }
 }
 /**
  * This function will handle the ICE state change
- */ 
+ */
 function onIceStateChange(pc, event) {
     if (pc) {
-      console.log(`ICE state: ${pc.iceConnectionState}`);
-      console.log('ICE state change event: ', event);
+        console.log(`ICE state: ${pc.iceConnectionState}`);
+        console.log('ICE state change event: ', event);
     }
 }
 /**
  * This function will handle error message
- */ 
+ */
 function errorMessage(message, e) {
     console.error("error ***");
     console.error(message, typeof e == 'undefined' ? '' : e);
@@ -372,13 +369,13 @@ function icecandidateAdded(ev) {
             type: "candidate",
             candidate: ev.candidate
         });
-        console.log("ICE candidate has send to Server ..");   
+        console.log("ICE candidate has send to Server ..");
     }
 }
 /**
  * This function will handle the data channel open callback.
  */
- var onSend_ChannelOpenState = function (event) {
+var onSend_ChannelOpenState = function(event) {
     flag_send_datachannel = true;
     console.log("dataChannel.OnOpen", event);
     if (Send_dataChannel.readyState == "open") {
@@ -388,7 +385,7 @@ function icecandidateAdded(ev) {
 /**
  * This function will handle the data channel message callback.
  */
- var onSend_ChannelMessageCallback = function (event) {
+var onSend_ChannelMessageCallback = function(event) {
     count_message++;
     handleVisibilityChange(); //if we recive any message and user is in another tab
     UpdateChatMessages(event.data, false);
@@ -396,13 +393,13 @@ function icecandidateAdded(ev) {
 /**
  * This function will handle the data channel error callback.
  */
-var onSend_ChannelErrorState = function (error) {
+var onSend_ChannelErrorState = function(error) {
     console.log("dataChannel.OnError:", error);
 };
 /**
  * This function will handle the data channel close callback.
  */
-var onSend_ChannelCloseStateChange = function (event) {
+var onSend_ChannelCloseStateChange = function(event) {
     console.log("dataChannel.OnClose", event);
 };
 /**
@@ -413,13 +410,13 @@ function Create_DataChannel(name) {
 
     document.getElementById('dynamic_progress_text').setAttribute('data-loading-text', "Creating a channel with user ..");
     const dataChannelOptions = {
-        ordered: false,             // do not guarantee order
-        maxPacketLifeTime: 3000,    // in milliseconds
+        ordered: false, // do not guarantee order
+        maxPacketLifeTime: 3000, // in milliseconds
     };
 
     var channelname = "webrtc_label_" + name;
     Send_dataChannel = peerConnection.createDataChannel(channelname, dataChannelOptions);
-    console.log("Created DataChannel dataChannel = "+Send_dataChannel);
+    console.log("Created DataChannel dataChannel = " + Send_dataChannel);
 
     Send_dataChannel.onerror = onSend_ChannelErrorState;
     Send_dataChannel.onmessage = onSend_ChannelMessageCallback;
@@ -429,15 +426,15 @@ function Create_DataChannel(name) {
 /**
  * This function will create the webRTC offer request for other user.
  */
- async function creating_offer() {
+async function creating_offer() {
     document.getElementById('dynamic_progress_text').setAttribute('data-loading-text', "Requesting with user.. Please wait..");
     try {
         console.log('pc1 createOffer start');
         const offer = await peerConnection.createOffer(offerOptions);
         await onCreateOfferSuccess(offer);
-      } catch (e) {
+    } catch (e) {
         onCreateSessionDescriptionError(e);
-      }
+    }
 }
 /**
  * This function will set client local description of the webRTC 
@@ -445,43 +442,43 @@ function Create_DataChannel(name) {
 async function onCreateOfferSuccess(desc) {
     console.log(`Offer from client\n${desc.sdp}`);
     try {
-      await peerConnection.setLocalDescription(desc);
-      onSetLocalSuccess(peerConnection);
-      console.log("sending offer to server..");
-         send({
-             type: "offer",
-             offer: desc
-         });
+        await peerConnection.setLocalDescription(desc);
+        onSetLocalSuccess(peerConnection);
+        console.log("sending offer to server..");
+        send({
+            type: "offer",
+            offer: desc
+        });
     } catch (e) {
-      onSetSessionDescriptionError(e);
+        onSetSessionDescriptionError(e);
     }
 }
 /**
  * This function will send webRTC answer to server for offer request.
  */
- function make_answer() {
-     var name ='';
+function make_answer() {
+    var name = '';
     create_videocall_page();
-    permission_camera_before_call(false,name);
+    permission_camera_before_call(false, name);
 }
 /**
  * This function will create the webRTC answer for offer.
  */
 async function creating_answer() {
     try {
-      await peerConnection.setRemoteDescription(conn_offer);
-      onSetRemoteSuccess(peerConnection);
-      peerConnection.addEventListener('icecandidate', e => icecandidateAdded(e));
+        await peerConnection.setRemoteDescription(conn_offer);
+        onSetRemoteSuccess(peerConnection);
+        peerConnection.addEventListener('icecandidate', e => icecandidateAdded(e));
     } catch (e) {
-      onSetSessionDescriptionError(e);
-      clear_incoming_modal_popup(); /*remove modal when any error occurs */
+        onSetSessionDescriptionError(e);
+        clear_incoming_modal_popup(); /*remove modal when any error occurs */
     }
     console.log("creating answer..");
     try {
         const answer = await peerConnection.createAnswer();
-        console.log(" answer created = "+ answer);
+        console.log(" answer created = " + answer);
         await onCreateAnswerSuccess(answer);
-      } catch (e) {
+    } catch (e) {
         onCreateSessionDescriptionError(e);
     }
 }
@@ -491,20 +488,20 @@ async function creating_answer() {
 async function onCreateAnswerSuccess(desc) {
     console.log('peer setLocalDescription start');
     try {
-      await peerConnection.setLocalDescription(desc);
-      onSetLocalSuccess(peerConnection);
+        await peerConnection.setLocalDescription(desc);
+        onSetLocalSuccess(peerConnection);
     } catch (e) {
-      onSetSessionDescriptionError(e);
-      clear_incoming_modal_popup(); /*remove modal when any error occurs */
+        onSetSessionDescriptionError(e);
+        clear_incoming_modal_popup(); /*remove modal when any error occurs */
     }
     //store the answer
     conn_answer = desc;
     console.log("sending answer to server..");
     send({
-             type: "answer",
-             answer: conn_answer
-        });   
-  }
+        type: "answer",
+        answer: conn_answer
+    });
+}
 /**
  * This function will print log of local description error
  */
@@ -519,27 +516,27 @@ function onSetLocalSuccess(pc) {
 }
 /**
  * This function will print log of remote description sucess
- */ 
+ */
 function onSetRemoteSuccess(pc) {
     console.log(`setRemoteDescription complete`);
 }
 /**
  * This function will print log of remote description error
- */  
+ */
 function onSetSessionDescriptionError(error) {
     console.log(`Failed to set session description: ${error.toString()}`);
 }
 /**
  * This function will handle when another user answers to our offer .
  */
- async function onAnswer(answer) { 
+async function onAnswer(answer) {
     document.getElementById('dynamic_progress_text').setAttribute('data-loading-text', "Waiting for a answer from user..Please wait ..");
     try {
         await peerConnection.setRemoteDescription(answer);
         onSetRemoteSuccess(peerConnection);
-      } catch (e) {
+    } catch (e) {
         onSetSessionDescriptionError(e);
-      }
+    }
 
     send({
         type: "ready"
@@ -549,7 +546,7 @@ function onSetSessionDescriptionError(error) {
  * This function will send the user message to server.
  * Sending message will be in JSON format.
  */
- function send(message) {
+function send(message) {
     if (connectedUser) {
         message.name = connectedUser;
     }
@@ -562,11 +559,11 @@ function onSetSessionDescriptionError(error) {
  * This function will handle the login message from server
  * If it is success, it will initiate the webRTC RTCPeerconnection.
  */
- function onLogin(success) {
+function onLogin(success) {
     if (success === false) {
         alert("Username is already taken .. choose different one");
     } else {
-        Update_user_status("clientuser_status","online");
+        Update_user_status("clientuser_status", "online");
         document.getElementById('signupStart').setAttribute('style', 'display:none');
     }
 }
@@ -575,10 +572,10 @@ function onSetSessionDescriptionError(error) {
  * If the popup is still avaible after 30 second , then
  * it will be forcefully remove from screen and update to user.
  */
-$('#modalNotificationList').on('show.bs.modal', function () {
+$('#modalNotificationList').on('show.bs.modal', function() {
     var myModal = $(this);
     clearTimeout(myModal.data('hideInterval'));
-    myModal.data('hideInterval', setTimeout(function () {
+    myModal.data('hideInterval', setTimeout(function() {
         if (chat_window_flag != true && outgoing_popup_set == true) {
             myModal.modal('hide').data('bs.modal', null);
             populate_error("noresponse");
@@ -591,10 +588,10 @@ $('#modalNotificationList').on('show.bs.modal', function () {
  * If the popup is still avaible after 30 second , then
  * it will be forcefully remove from screen and update to user.
  */
-$('#incoming_call_Modal').on('show.bs.modal', function () {
+$('#incoming_call_Modal').on('show.bs.modal', function() {
     var myModal = $(this);
     clearTimeout(myModal.data('hideInterval'));
-    myModal.data('hideInterval', setTimeout(function () {
+    myModal.data('hideInterval', setTimeout(function() {
         if (chat_window_flag != true && incoming_popup_set == true) {
             myModal.modal('hide').data('bs.modal', null);
             populate_error("noresponse");
@@ -615,8 +612,8 @@ function create_request_room_Modal(name) {
         '<h4 class="modal-title" id="myModalLabel1"><strong>Incoming chat room request </strong></h4>' +
         '</div>' +
         '<div class="modal-body">' +
-        '<div class="row intro-banner-vdo-play-btn pinkBg"><i class="glyphicon glyphicon-play whiteText" aria-hidden="true"></i>'+
-        '<img src="images/pp.png" class="friend-pic-new rounded-circle"/><span class="ripple pinkBg"></span><span class="ripple pinkBg"></span><span class="ripple pinkBg"></span></div>'+
+        '<div class="row intro-banner-vdo-play-btn pinkBg"><i class="glyphicon glyphicon-play whiteText" aria-hidden="true"></i>' +
+        '<img src="images/pp.png" class="friend-pic-new rounded-circle"/><span class="ripple pinkBg"></span><span class="ripple pinkBg"></span><span class="ripple pinkBg"></span></div>' +
         '<div id="incoming-call-page" class="page text-center">' +
         '<div id="dynamictext" class="word"></div>' +
         '<div class="row incoming-button-calls">' +
@@ -641,7 +638,7 @@ function create_request_room_Modal(name) {
     document.getElementById('incoming_call_Modal').innerHTML = html;
     document.getElementById('dynamictext').innerText = "";
     //document.getElementById('peer_user_name_incoming').innerHTML = "<li class='loading' data-loading-text='"+ name +"is requesting for a chat ..'></li>";
-    var string = name +" is requesting for a chat ..";
+    var string = name + " is requesting for a chat ..";
     var words = [string];
     console.log("*********calling wordflick ***********");
     id_wordflick = wordflick(words);
@@ -650,58 +647,53 @@ function create_request_room_Modal(name) {
     incoming_popup_set = true;
 }
 
-function wordflick (words) {
+function wordflick(words) {
 
-    var part ='',
-    i = 0,
-    offset = 0,
-    len = words.length,
-    forwards = true,
-    skip_count = 0,
-    skip_delay = 15,
-    speed = 70;
+    var part = '',
+        i = 0,
+        offset = 0,
+        len = words.length,
+        forwards = true,
+        skip_count = 0,
+        skip_delay = 15,
+        speed = 70;
 
-    return window.setInterval(function () {
-      if (forwards) {
-        if (offset >= words[i].length) {
-          ++skip_count;
-          if (skip_count == skip_delay) {
-            forwards = false;
-            skip_count = 0;
-          }
-        }
-      }
-      else {
-        if (offset == 0) {
-          forwards = true;
-          i++;
-          offset = 0;
-          if (i >= len) {
-            i = 0;
-          }
-        }
-      }
-      part = words[i].substr(0, offset);
-      if (skip_count == 0) {
+    return window.setInterval(function() {
         if (forwards) {
-          offset++;
+            if (offset >= words[i].length) {
+                ++skip_count;
+                if (skip_count == skip_delay) {
+                    forwards = false;
+                    skip_count = 0;
+                }
+            }
+        } else {
+            if (offset == 0) {
+                forwards = true;
+                i++;
+                offset = 0;
+                if (i >= len) {
+                    i = 0;
+                }
+            }
         }
-        else {
-          offset--;
+        part = words[i].substr(0, offset);
+        if (skip_count == 0) {
+            if (forwards) {
+                offset++;
+            } else {
+                offset--;
+            }
         }
-      }
-      if(part =='')
-      {
-        document.getElementById('dynamictext').innerText = words[i].substr(0, 1);
-        //$('.word').text(words[i].substr(0, 1));
-      }
-      else
-      {
-        document.getElementById('dynamictext').innerText = part;
-        //$('.word').text(part);
-      }
-    },speed);
-  };
+        if (part == '') {
+            document.getElementById('dynamictext').innerText = words[i].substr(0, 1);
+            //$('.word').text(words[i].substr(0, 1));
+        } else {
+            document.getElementById('dynamictext').innerText = part;
+            //$('.word').text(part);
+        }
+    }, speed);
+};
 
 /**
  * This function will create the dynamic bootstrap modal to show 
@@ -711,51 +703,47 @@ function wordflick (words) {
 function Create_Popup_Notifications() {
 
     /* creation of modal pop up to show the progress */
-    var html = '<div class="vertical-alignment-helper">'
-        + '<div class="modal-dialog modal-lg vertical-align-center">'
-        + '<div class="modal-content">'
-        + '<div class="modal-header">'
-        + '<h4 class="modal-title" id="myModalLabel2"><strong>Creating room request</strong></h4>'
-        + '</div>'
-        + '<div class="modal-body">'
-        + `<div class="popup text-center">`
-        +'<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>'
-        +'<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
-        + `</div>`
-        + `<li id="dynamic_progress_text" class="loading"></li>`
-        + '</div>'
-        + '<!-- footer content -->'
-        + '<div class="modal-footer"></div>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+    var html = '<div class="vertical-alignment-helper">' +
+        '<div class="modal-dialog modal-lg vertical-align-center">' +
+        '<div class="modal-content">' +
+        '<div class="modal-header">' +
+        '<h4 class="modal-title" id="myModalLabel2"><strong>Creating room request</strong></h4>' +
+        '</div>' +
+        '<div class="modal-body">' +
+        `<div class="popup text-center">` +
+        '<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-primary" role="status"><span class="sr-only">Loading...</span></div>' +
+        '<div class="spinner-grow text-secondary" role="status"><span class="sr-only">Loading...</span></div>' +
+        `</div>` +
+        `<li id="dynamic_progress_text" class="loading"></li>` +
+        '</div>' +
+        '<!-- footer content -->' +
+        '<div class="modal-footer"></div>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
 
     document.getElementById('modalNotificationList').innerHTML = html;
     $("#modalNotificationList").modal('show');
     outgoing_popup_set = true;
 }
 
-function check_user_status(status, name)
-{
-    if(status == false)
-    {
-         //availble user
-         //enable the chat window
-         Create_Popup_Notifications();
-         //make an offer 
-         document.getElementById('dynamic_progress_text').setAttribute('data-loading-text', "Creating a connection .. Please wait..");
-         //check camera permission before connection
-         create_videocall_page();
-         permission_camera_before_call(true,name);
-    }
-    else
-    {
+function check_user_status(status, name) {
+    if (status == false) {
+        //availble user
+        //enable the chat window
+        Create_Popup_Notifications();
+        //make an offer 
+        document.getElementById('dynamic_progress_text').setAttribute('data-loading-text', "Creating a connection .. Please wait..");
+        //check camera permission before connection
+        create_videocall_page();
+        permission_camera_before_call(true, name);
+    } else {
         //busy user
         document.getElementById('divStart').removeAttribute('style');
         document.getElementById('chatPanel').setAttribute('style', 'display:none');
@@ -783,20 +771,15 @@ function left_from_server() {
 function update_connection_status(textid) {
     var messageDisplay = '';
     var message;
-    if(textid == "success")
-    {
+    if (textid == "success") {
         message = "WebRTC Chat room is created sucessfully.. Happy chatting !!.";
-    }
-    else if(textid == "datachannel")
-    {
+    } else if (textid == "datachannel") {
         message = "Error: WebRTC Data channel is not open.. Please leave room and try again";
-    }
-    else
-    {
+    } else {
         message = "NA";
     }
     messageDisplay += "<div class='alert alert-success' role='alert'>" +
-        "<p class='mb-0'>"+message+"</p>" +
+        "<p class='mb-0'>" + message + "</p>" +
         "</div>";
 
     document.getElementById('text-chat').innerHTML = messageDisplay;
@@ -810,27 +793,23 @@ function DisposeRoom() {
     document.getElementById('divStart').removeAttribute('style');
     document.getElementById('chatPanel').setAttribute('style', 'display:none');
     populate_error("endcall");
-    document.getElementById('messages_video').innerHTML ='';
+    document.getElementById('messages_video').innerHTML = '';
     count_message = 0;
     handleVisibilityChange(); //if we recive any message and user is in another tab
 }
 /**
  * This function will delete the webRTC connections.
  */
-function Delete_webrtc_connection()
-{
-    Update_user_status("clientuser_status","online");
+function Delete_webrtc_connection() {
+    Update_user_status("clientuser_status", "online");
     //close all the data channel
-    if(flag_send_datachannel == true)
-    {
+    if (flag_send_datachannel == true) {
         /* close the send datachannel */
         Send_dataChannel.close();
         flag_send_datachannel = false;
-    }else
-    {
+    } else {
         /* close the receive datachannel */
-        if(Receive_dataChannel)
-        {
+        if (Receive_dataChannel) {
             Receive_dataChannel.close();
         }
     }
@@ -840,7 +819,7 @@ function Delete_webrtc_connection()
     m_PeerVideo.src = "";
     peerConnection.onicecandidate = null;
     peerConnection.onaddstream = null;
-    
+
     /** stop the camera and return to normal status */
     m_client_Video.src = "";
     current_client_stream.getAudioTracks()[0].stop();
@@ -850,7 +829,7 @@ function Delete_webrtc_connection()
     peerConnection.close();
     peerConnection = null;
     /* clear the chat window */
-    document.getElementById('text-chat').innerHTML ='';
+    document.getElementById('text-chat').innerHTML = '';
 }
 /**
  * This function will handle UI when other user reject the webRTC offer.
@@ -866,7 +845,7 @@ function busy_user() {
  * This function will handle sliding of bootstrap UI message.
  */
 function slide_down_error() {
-    $("#success-alert").fadeTo(2000, 500).slideUp(500, function () {
+    $("#success-alert").fadeTo(2000, 500).slideUp(500, function() {
         $("#success-alert").slideUp(500);
     });
 }
@@ -879,29 +858,21 @@ function populate_error(errorid) {
 
     if (errorid == "reject") {
         text = "User has rejected your request .. it seems user is busy now !!";
-    }
-    else if (errorid == "inaroom") {
+    } else if (errorid == "inaroom") {
         text = "If you want another room, please leave this room first !!";
-    }
-    else if (errorid == "server") {
+    } else if (errorid == "server") {
         text = "Server is down, please try again later !!";
-    }
-    else if (errorid == "noresponse") {
+    } else if (errorid == "noresponse") {
         text = "No response from user .. User may be offline now !!";
-    }
-    else if (errorid == "endforcecall") {
+    } else if (errorid == "endforcecall") {
         text = "Chat room is closed by other user !!";
-    }
-    else if (errorid == "endcall") {
+    } else if (errorid == "endcall") {
         text = "You have closed the chat room !!";
-    }
-    else if (errorid == "user_unavailble") {
+    } else if (errorid == "user_unavailble") {
         text = "Other user has left from the chat !!";
-    }
-    else if (errorid == "busyuser") {
+    } else if (errorid == "busyuser") {
         text = "Peer user is in another room.. please try later !!";
-    }
-    else {
+    } else {
         text = "NA";
     }
     msg += '<button type="button" class="close" data-dismiss="alert">x</button>' +
@@ -943,13 +914,12 @@ function call_user(name) {
     if (chat_window_flag == true) {
         //already in a room
         populate_error("inaroom");
-    }
-    else {
+    } else {
         var otherUsername = name;
         connectedUser = otherUsername;
 
         if (otherUsername.length > 0) {
-            
+
             send({
                 type: "want_to_call",
                 name: otherUsername
@@ -962,7 +932,7 @@ function call_user(name) {
  */
 function onOffer(offer, name) {
 
-    console.log("somebody wants to call us  => offer = "+ offer);
+    console.log("somebody wants to call us  => offer = " + offer);
     connectedUser = name;
     conn_offer = offer;
     /*create a popup to accept/reject room request*/
@@ -980,9 +950,9 @@ function user_is_ready(val, peername) {
         clear_incoming_modal_popup();
         clear_outgoing_modal_popup();
 
-        Update_user_status("clientuser_status","busy");
-        Update_user_status("peeruser_status","busy");
-        
+        Update_user_status("clientuser_status", "busy");
+        Update_user_status("peeruser_status", "busy");
+
         activate_chat_window();
         loadAllEmoji();
         update_connection_status("success");
@@ -992,7 +962,7 @@ function user_is_ready(val, peername) {
         outgoing_popup_set = false;
 
         var connectionState = RTCPeerConnection.connectionState;
-        console.log("RTCPeerConnection.connectionState = "+RTCPeerConnection.connectionState);
+        console.log("RTCPeerConnection.connectionState = " + RTCPeerConnection.connectionState);
     }
 }
 /**
@@ -1013,16 +983,14 @@ function clear_outgoing_modal_popup() {
 /**
  * This function will toggle the video button
  */
-function togglevideo(){
+function togglevideo() {
     var icon = $('.video');
     if (icon.hasClass("btn-default")) {
         var vidTrack = current_client_stream.getVideoTracks();
         vidTrack.forEach(track => track.enabled = false);
         icon.toggleClass("btn-default");
         icon.addClass("btn-danger");
-    }
-    else
-    {
+    } else {
         var vidTrack = current_client_stream.getVideoTracks();
         vidTrack.forEach(track => track.enabled = true);
         icon.toggleClass("btn-danger");
@@ -1032,16 +1000,14 @@ function togglevideo(){
 /**
  * This function will toggle the mute button
  */
-function togglemute(){
+function togglemute() {
     var icon = $('.mic');
     if (icon.hasClass("btn-default")) {
         var vidTrack = current_client_stream.getAudioTracks();
         vidTrack.forEach(track => track.enabled = false);
         icon.toggleClass("btn-default");
         icon.addClass("btn-danger");
-    }
-    else
-    {
+    } else {
         var vidTrack = current_client_stream.getAudioTracks();
         vidTrack.forEach(track => track.enabled = true);
         icon.toggleClass("btn-danger");
@@ -1051,66 +1017,66 @@ function togglemute(){
 /**
  * This function will create dynamic video call window
  */
-function create_videocall_page(){
+function create_videocall_page() {
 
     //Activate the video call window
     var VideosDisplay = '';
     VideosDisplay +=
-    '<div class="row">'+
-    '<div class="col-sm-3">'+ 
-    '<div class="modal-dialog-video">'+
-            '<div class="modal-body-video">'+
-            '<div class="overlay"><h2>Peer user</h2></div>'+
-                '<figure>'+
-                '<video class="peer_video_class" id="peer_video_frame" playsinline autoplay></video>'+
-                '</figure>'+
-            '</div>'+
-    '</div>'+    
-    '<div class="modal-dialog-video">'+
-            '<div class="modal-body-video">'+
-            '<div class="overlay"><h2>client user</h2></div>'+
-                '<figure>'+
-                '<video id="client_video_frame" playsinline autoplay></video>'+
-                '<div class="button_calls">'+
-                        '<div class="col-xs-1">'+
-                            '<button id="hide_camera" type="button" class="btn" onclick="togglevideo()">'+
-                            '<i class="btn-default btn material-icons video" style="color:white">videocam_off</i>'+
-                            '</button>'+
-                        '</div>'+
-                        '<div class="offset-md-2">'+
-                            '<button id="mute_camera" type="button" class="btn" onclick="togglemute()">'+
-                            '<i class="btn-default btn material-icons mic" style="color:white">mic_off</i>'+
-                            '</button>'+
-                        '</div>'+
-                '</div>'+
-                '</figure>'+
-            '</div>'+
-    '</div>'+
-    '</div>'+
-    '<div class="col-sm-6 offset-md-2">'+
-    '<div id="text-chat">'+
-    '</div>'+
-    '<div class="card-footer">'+
-        '<div class="row" style="position:relative;">'+
-            '<div class="col-md-12" id="emoji" style="display:none;">'+
-                '<div class="tab-pane fade show active" id="smiley" aria-labelledby="home-tab">'+
-                '</div>'+
-            '</div>'+
-        '</div>'+
-        '<div class="row">'+
-            '<div class="col-2 col-md-1" style="cursor:pointer;">'+
-                '<i class="far fa-grin fa-2x" onclick="showEmojiPanel()"></i>'+
-            '</div>'+
-            '<div class="col-8 col-md-9">'+
-                '<input id="txtMessage" onkeyup="ChangeSendIcon(this)" type="text" onfocus="hideEmojiPanel()" placeholder="Type Message here" class="form-control form-rounded" />'+
-            '</div>'+
-            '<div class="col-2 col-md-1">'+
-                '<i id="send" class="fa fa-paper-plane fa-2x" onclick="SendMessage()" style="display:none"></i>'+
-            '</div>'+
-        '</div>'+
-    '</div>'+
-    '</div>'+
-    '</div>';
+        '<div class="row">' +
+        '<div class="col-sm-3">' +
+        '<div class="modal-dialog-video">' +
+        '<div class="modal-body-video">' +
+        '<div class="overlay"><h2>Peer user</h2></div>' +
+        '<figure>' +
+        '<video class="peer_video_class" id="peer_video_frame" playsinline autoplay></video>' +
+        '</figure>' +
+        '</div>' +
+        '</div>' +
+        '<div class="modal-dialog-video">' +
+        '<div class="modal-body-video">' +
+        '<div class="overlay"><h2>client user</h2></div>' +
+        '<figure>' +
+        '<video id="client_video_frame" playsinline autoplay></video>' +
+        '<div class="button_calls">' +
+        '<div class="col-xs-1">' +
+        '<button id="hide_camera" type="button" class="btn" onclick="togglevideo()">' +
+        '<i class="btn-default btn material-icons video" style="color:white">videocam_off</i>' +
+        '</button>' +
+        '</div>' +
+        '<div class="offset-md-2">' +
+        '<button id="mute_camera" type="button" class="btn" onclick="togglemute()">' +
+        '<i class="btn-default btn material-icons mic" style="color:white">mic_off</i>' +
+        '</button>' +
+        '</div>' +
+        '</div>' +
+        '</figure>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="col-sm-6 offset-md-2">' +
+        '<div id="text-chat">' +
+        '</div>' +
+        '<div class="card-footer">' +
+        '<div class="row" style="position:relative;">' +
+        '<div class="col-md-12" id="emoji" style="display:none;">' +
+        '<div class="tab-pane fade show active" id="smiley" aria-labelledby="home-tab">' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="row">' +
+        '<div class="col-2 col-md-1" style="cursor:pointer;">' +
+        '<i class="far fa-grin fa-2x" onclick="showEmojiPanel()"></i>' +
+        '</div>' +
+        '<div class="col-8 col-md-9">' +
+        '<input id="txtMessage" onkeyup="ChangeSendIcon(this)" type="text" onfocus="hideEmojiPanel()" placeholder="Type Message here" class="form-control form-rounded" />' +
+        '</div>' +
+        '<div class="col-2 col-md-1">' +
+        '<i id="send" class="fa fa-paper-plane fa-2x" onclick="SendMessage()" style="display:none"></i>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
     document.getElementById('messages_video').innerHTML += VideosDisplay;
 }
 /**
@@ -1127,8 +1093,7 @@ function activate_chat_window() {
 function ChangeSendIcon(control) {
     if (control.value !== '') {
         document.getElementById('send').removeAttribute('style');
-    }
-    else {
+    } else {
         document.getElementById('send').setAttribute('style', 'display:none');
     }
 }
@@ -1150,8 +1115,7 @@ function showEmojiPanel() {
 
     if ((document.getElementById('emoji').style.display == 'none')) {
         document.getElementById('emoji').removeAttribute('style');
-    }
-    else {
+    } else {
         //double click
         hideEmojiPanel();
     }
@@ -1190,8 +1154,7 @@ function UpdateChatMessages(txtmessage, client) {
             "</div>";
 
         document.getElementById('text-chat').innerHTML += messageDisplay;
-    }
-    else {
+    } else {
         //count_message++;
         //console.log("count_message recivied = ",count_message);
         messageDisplay += "<div class='row justify-content-end'>" +
@@ -1221,40 +1184,36 @@ function SendMessage() {
             /* remove current text */
             document.getElementById('txtMessage').value = '';
             document.getElementById('txtMessage').focus();
-        }
-        else if (flag_send_datachannel == false)
-        {
+        } else if (flag_send_datachannel == false) {
             Receive_dataChannel.send(txtmessage);
             UpdateChatMessages(txtmessage, true);
             /* remove current text */
             document.getElementById('txtMessage').value = '';
             document.getElementById('txtMessage').focus();
-        }
-        else
-        {
+        } else {
             update_connection_status("datachannel");
         }
     }
 }
 /**
  * This function will populate the online userlist from the server.
-*/
+ */
 function LoadOnlineUserList(username_array) {
-    
+
     /* convert the json to Map */
     const map2 = new Map(username_array);
     /* Count of online user -> server send all user list , we have to remove our name from that list */
     document.getElementById('onlineusers').innerHTML = '<span class="indicator label-success"></span>' +
-                                                        'online users (' + (map2.size - 1) + ')';
+        'online users (' + (map2.size - 1) + ')';
     document.getElementById('lstChat').innerHTML = "";
 
     if (map2.size > 1) {
-        
+
         var id = 0;
 
         for (let [key, value] of map2) {
-            if (username != key) { 
-                var id_name = 'online_status_'+id; /* Used for dynamic id */
+            if (username != key) {
+                var id_name = 'online_status_' + id; /* Used for dynamic id */
                 /*populate the sidebar online users list dynamically*/
                 document.getElementById('lstChat').innerHTML += "<li class='list-group-item list-group-item-action'>" +
                     "<div class='row'>" +
@@ -1263,7 +1222,7 @@ function LoadOnlineUserList(username_array) {
                     "</div>" +
                     "<div class='col-md-4' style='cursor:pointer;'>" +
                     "<div class='name'>" + key + "</div>" +
-                    "<div class='under-name'><span id="+id_name+" class='indicator label-success'></span>" + value + "</div>" +
+                    "<div class='under-name'><span id=" + id_name + " class='indicator label-success'></span>" + value + "</div>" +
                     "</div>" +
                     "<div class='col-md-4' style='cursor:pointer;'>" +
                     "<button class='btn btn-success' type='button' onclick='call_user(\"" + key + "\")'>" +
@@ -1271,31 +1230,28 @@ function LoadOnlineUserList(username_array) {
                     "</button>" +
                     "</div>" +
                     "</li>";
-                    
-                Update_user_status(id_name, value);    
-                id++;   
+
+                Update_user_status(id_name, value);
+                id++;
             }
         }
-    }
-    else
-    {
-            /* Only one user name present ie. only client */
-            if (map2.key == username) {
-                document.getElementById('lstChat').innerHTML = "";
-                console.log("single user = ", map2.key);
-            }
+    } else {
+        /* Only one user name present ie. only client */
+        if (map2.key == username) {
+            document.getElementById('lstChat').innerHTML = "";
+            console.log("single user = ", map2.key);
+        }
     }
 }
-function Update_user_status(id_name, value)
-{
-    switch(value)
-    {
+
+function Update_user_status(id_name, value) {
+    switch (value) {
         /* handle the user status */
         case "online":
             document.getElementById(id_name).classList.replace('label-danger', 'label-success');
             break;
         case "busy":
-            document.getElementById(id_name).classList.replace('label-success','label-danger'); 
+            document.getElementById(id_name).classList.replace('label-success', 'label-danger');
             break;
         default:
             document.getElementById(id_name).classList.add('label-success');
